@@ -8,15 +8,6 @@ use core::panic::PanicInfo;
 mod serial;
 mod vga_buffer;
 
-// #[cfg(test)]
-// pub fn test_runner(tests: &[&dyn Testable]) {
-//     serial_println!("Running {} tests", tests.len());
-//     for test in tests {
-//         test.run();
-//     }
-//     exit_qemu(QemuExitCode::Success);
-// }
-
 #[test_case]
 fn trivial_assertion() {
     assert_eq!(1, 1);
