@@ -19,16 +19,12 @@ pub extern "C" fn _start() -> ! {
     
     blog_os::init();
     
-    #[allow(unconditional_recursion)]
+    #[allow(unconditional_recursion, dead_code)]
     fn stack_overflow() {
         stack_overflow();
     }
     
-    stack_overflow();
-    
-    unsafe {
-        *(0xdeadbeef as *mut u64) = 42;
-    };
+    // stack_overflow();
     
     x86_64::instructions::interrupts::int3();
     
