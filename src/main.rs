@@ -19,27 +19,23 @@ pub extern "C" fn _start() -> ! {
     
     blog_os::init();
     
-    #[allow(unconditional_recursion, dead_code)]
-    fn stack_overflow() {
-        stack_overflow();
-    }
+    use x86_64::registers::control::Cr3;
     
-    // stack_overflow();
-    
-    x86_64::instructions::interrupts::int3();
+    let (level_4_page_table, _) = Cr3::read();
+    println!("Level 4 page table at: {:?}", level_4_page_table.start_address());
     
     #[cfg(test)]
     test_main();
 
     println!("It did not crash!");
-    loop {}
+    blog_os::hlt_loop();
 }
 
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    blog_os::hlt_loop();
 }
 
 #[cfg(test)]
@@ -65,7 +61,7 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
 }
 
 pub trait Testable {
-    fn run(&self) -> ();
+    fn run(&self);
 }
 
 impl<T> Testable for T
