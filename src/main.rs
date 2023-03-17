@@ -5,24 +5,40 @@
 #![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
+use bootloader::{BootInfo, entry_point};
+
 mod serial;
 mod vga_buffer;
 
-#[test_case]
-fn trivial_assertion() {
-    assert_eq!(1, 1);
-}
+entry_point!(kernel_main);
 
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
-    println!("Hello world{}", "!");
+fn kernel_main(boot_info: &'static BootInfo) -> ! {
+    // use blog_os::memory;
+    use blog_os::memory::BootInfoFrameAllocator;
+    use x86_64::{
+        structures::paging::Page, 
+        VirtAddr,
+    };
     
+    println!("Hello world{}", "!");
     blog_os::init();
     
-    use x86_64::registers::control::Cr3;
+    let _phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
     
-    let (level_4_page_table, _) = Cr3::read();
-    println!("Level 4 page table at: {:?}", level_4_page_table.start_address());
+    let mut _frame_allocator = unsafe { 
+        BootInfoFrameAllocator::init(&boot_info.memory_map)
+    };
+    
+    let page:Page = Page::containing_address(VirtAddr::new(0xdeadbeef000));
+    let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
+    unsafe { page_ptr.offset(400).write_volatile(0x_f021_f077_f065_f04e) };
+    
+    let _addresses = [
+        0xb8000,
+        0x200008,
+        0x0100_0020_1a10,
+        boot_info.physical_memory_offset,
+    ];
     
     #[cfg(test)]
     test_main();
