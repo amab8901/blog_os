@@ -1,7 +1,7 @@
-use volatile::Volatile;
 use core::fmt;
 use lazy_static::lazy_static;
 use spin::Mutex;
+use volatile::Volatile;
 
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
@@ -103,7 +103,7 @@ impl Writer {
         self.clear_row(BUFFER_HEIGHT - 1);
         self.column_position = 0;
     }
-    
+
     pub fn write_string(&mut self, s: &str) {
         for byte in s.bytes() {
             match byte {
@@ -114,7 +114,7 @@ impl Writer {
             }
         }
     }
-    
+
     fn clear_row(&mut self, row: usize) {
         let blank = ScreenChar {
             ascii_character: b' ',
@@ -141,7 +141,7 @@ macro_rules! println {
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
     use x86_64::instructions::interrupts;
-    
+
     interrupts::without_interrupts(|| {
         WRITER.lock().write_fmt(args).unwrap();
         for _ in 0..10000 {}
@@ -164,7 +164,7 @@ fn test_println_many() {
 fn test_println_output() {
     use core::fmt::Write;
     use x86_64::instructions::interrupts;
-    
+
     let s = "Some test string that fits on a single line";
     interrupts::without_interrupts(|| {
         let mut writer = WRITER.lock();

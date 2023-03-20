@@ -4,8 +4,8 @@
 #![test_runner(test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-use core::panic::PanicInfo;
 use blog_os::{exit_qemu, serial_print, serial_println, QemuExitCode};
+use core::panic::PanicInfo;
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
@@ -35,5 +35,5 @@ pub fn test_runner(tests: &[&dyn Fn()]) {
 
 fn should_fail() {
     serial_print!("should_panic::should_fail...\t");
-    assert_eq!(0,1);
+    assert_eq!(0, 1);
 }
